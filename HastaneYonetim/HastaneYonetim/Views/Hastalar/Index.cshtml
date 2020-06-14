@@ -1,0 +1,109 @@
+﻿@model IEnumerable<HastaneYonetim.Core.Models.Hasta>
+    @{
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+
+<div class="page-title">
+    <div class="title_left">
+        <h3>Hastalar</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="x_panel">
+            <div class="x_content">
+
+                <table id="patients" class="data table table-striped no-margin">
+                    <thead>
+                        <tr>
+                            <th>Hasta Numarası</th>
+                            <th>İsim</th>
+                            <th>Telefon</th>
+                            <th>Adres</th>
+                            <th>Şehir</th>
+                            <th><a href="@Url.Action("Olustur","Hastalar")" class="btn btn-primary btn-xs"><i class="fa fa-edit"></i>Ekle</a></th>
+
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+
+    <script>
+        var popup;
+
+        $(document).ready(function () {
+            var table = $("#patients").DataTable({
+                ajax: {
+                    url: "/api/hastalar",
+                    dataSrc: ""
+                },
+                columns: [
+                    {
+                        data: "HastaNumarasi"
+                        
+                    },
+                    {
+                        data: "Ad"
+                    },
+                    {
+                        data: "Telefon",
+                        render: function (data) {
+                            return data.toString().replace(
+                              /(\d\d\d)(\d\d\d)(\d\d\d\d)/g, '$1-$2-$3');
+                        }
+                    },
+                    {
+                        data: "Adres"
+                    },
+                    {
+                        data: "Sehirler.Ad"
+                    },
+                    {
+                        data: "id",
+                        render: function (data, type, hasta) {
+                            return "<a href='/Hastalar/Detaylar/ " + hasta.id + "' class='btn btn-default btn-xs'>" + "<i class='fa fa-folder'></i>Görünüm</a>" +
+                                //"<button class= 'btn-link js-detail' data-detail-id=" + data + "><i class='fa fa-pencil-square'></i></button>" +
+                                "<button class= 'btn btn-danger btn-xs js-delete' data-patient-id=" + data + "><i class='fa fa-trash-o'></i>Sil</button>";
+                        }
+                    }
+
+                ]
+            });
+
+
+          
+
+
+            $("#patients").on("click", ".js-delete", function () {
+                var button = $(this);
+
+                bootbox.confirm("Bu hastayı silmek istediğinize emin misiniz?", function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: "/api/hastalar/" + button.attr("data-patient-id"),
+                            method: "DELETE",
+                            success: function () {
+                                table.row(button.parents("tr")).remove().draw();
+                            }
+                        });
+                    }
+                });
+            });
+
+
+
+
+        });
+
+    </script>
+}
+
+
+
